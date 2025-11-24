@@ -49,20 +49,29 @@
       box-shadow: 0 0 30px rgba(0,0,0,0.7);
     }
 
-    form h2 {
+    /* RGB CASH PIG TEXT */
+    @keyframes rgb {
+      0% { color: red; }
+      25% { color: orange; }
+      50% { color: lime; }
+      75% { color: cyan; }
+      100% { color: magenta; }
+    }
+
+    h2 {
       margin-top: 0.5rem;
       margin-bottom: 1.5rem;
       font-size: 1.8rem;
       letter-spacing: 1px;
-      color: white;
+      animation: rgb 3s linear infinite;
       font-weight: bold;
     }
 
+    /* PIG GIF */
     .pig {
-      width: 140px;
-      display: block;
-      margin: 0 auto 10px auto;
-      border-radius: 10px;
+      width: 130px;
+      margin-bottom: 10px;
+      border-radius: 8px;
     }
 
     input {
@@ -94,23 +103,20 @@
 </head>
 <body>
 
-  <!-- Spinning triangles -->
+  <!-- Triangles -->
   <div class="triangle" style="top: 0; left: 10%; width: 40px; height:40px;"></div>
   <div class="triangle" style="top: -100px; left: 50%; width: 60px; height:60px;"></div>
   <div class="triangle" style="top: -200px; left: 80%; width: 50px; height:50px;"></div>
 
-  <!-- Order form -->
   <form id="orderForm">
 
-    <!-- Minecraft Pig GIF -->
-    <img src="/mnt/data/minecraft-pig.gif" class="pig" alt="Spinning Minecraft Pig">
+    <!-- YOUR GIF (replace the src path with your GitHub URL or repo path) -->
+    <img src="YOUR_GIF_PATH_HERE.gif" class="pig" alt="Minecraft Pig">
 
     <h2>CASHPIG</h2>
 
     <input type="text" name="discord" placeholder="Discord Username" required>
     <input type="text" name="minecraft" placeholder="Minecraft Username" required>
-
-    <!-- Quantity 1–64 -->
     <input type="number" name="quantity" placeholder="Quantity (1–64)" min="1" max="64" required>
 
     <button type="submit">Submit Order</button>
@@ -120,12 +126,8 @@
     const form = document.getElementById('orderForm');
     const webhookURL = "https://discord.com/api/webhooks/1442178902620508292/6fTtBBCGsb34lWBZyAkep4HVGJppjnvcfkyndeumS4r3IsUxcmc2zFt4Lt372mdfpCSm";
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      const discord = e.target.discord.value;
-      const minecraft = e.target.minecraft.value;
-      const quantity = e.target.quantity.value;
 
       const payload = {
         content: "**New Order Received!**",
@@ -133,30 +135,25 @@
           title: "Order Details",
           color: 3447003,
           fields: [
-            { name: "Discord Username", value: discord, inline: false },
-            { name: "Minecraft Username", value: minecraft, inline: false },
-            { name: "Quantity", value: quantity, inline: true },
-            { name: "Timestamp", value: new Date().toLocaleString(), inline: false }
+            { name: "Discord Username", value: e.target.discord.value },
+            { name: "Minecraft Username", value: e.target.minecraft.value },
+            { name: "Quantity", value: e.target.quantity.value },
+            { name: "Timestamp", value: new Date().toLocaleString() }
           ]
         }]
       };
 
-      try {
-        const response = await fetch(webhookURL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+      const res = await fetch(webhookURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
 
-        if (response.ok) {
-          alert("Order sent successfully!");
-          form.reset();
-        } else {
-          alert("Error sending order. Check webhook URL.");
-        }
-      } catch (err) {
-        alert("Failed to send order: " + err);
-        console.error(err);
+      if (res.ok) {
+        alert("Order sent!");
+        form.reset();
+      } else {
+        alert("Error sending order");
       }
     });
   </script>
