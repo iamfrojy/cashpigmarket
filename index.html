@@ -119,6 +119,9 @@
     <input type="text" name="minecraft" placeholder="Minecraft Username" required>
     <input type="number" name="quantity" placeholder="Quantity (1–64)" min="1" max="64" required>
 
+    <!-- NEW DISCOUNT CODE INPUT -->
+    <input type="text" name="discount" placeholder="Discount Code (optional)">
+
     <button type="submit">Submit Order</button>
   </form>
 
@@ -126,8 +129,31 @@
     const form = document.getElementById('orderForm');
     const webhookURL = "https://discord.com/api/webhooks/1442178902620508292/6fTtBBCGsb34lWBZyAkep4HVGJppjnvcfkyndeumS4r3IsUxcmc2zFt4Lt372mdfpCSm";
 
+    async function validateCode(code) {
+      try {
+        const res = await fetch("codes.txt");  // must be in same folder on GitHub
+        const text = await res.text();
+        const codes = text.split(/\r?\n/).filter(x => x.trim().length > 0);
+
+        return codes.some(valid => valid.toLowerCase() === code.toLowerCase());
+      } catch (err) {
+        console.error("Error loading discount file", err);
+        return false;
+      }
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      const discount = e.target.discount.value.trim();
+
+      if (discount.length > 0) {
+        const ok = await validateCode(discount);
+        if (!ok) {
+          alert("Invalid discount code!");
+          return;
+        }
+      }
 
       const payload = {
         content: "**New Order Received!**",
@@ -138,6 +164,7 @@
             { name: "Discord Username", value: e.target.discord.value },
             { name: "Minecraft Username", value: e.target.minecraft.value },
             { name: "Quantity", value: e.target.quantity.value },
+            { name: "Discount Code", value: discount || "None" },
             { name: "Timestamp", value: new Date().toLocaleString() }
           ]
         }]
